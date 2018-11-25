@@ -1,0 +1,7 @@
+1. crawler that adds data from recent games to the database
+2. sentiment analysis for tweets in database
+3. query to get points/tweets and compare them for a play
+4. script to delete old game records
+5. ui for querying + filtering game records
+6. improve db querying capabilities and add more data
+7. autocomplete? 
