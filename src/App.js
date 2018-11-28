@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css'
+import $ from "jquery";
 
 class App extends Component {
   constructor(props){
@@ -75,17 +76,23 @@ class App extends Component {
   }
 
   getResults(searchString) {
-    this.setState({showDetails: true})
-    this.setState({resultData: 
-      [{
-        name: 'Stephen Curry',
-        age: 30,
-        team: 'GSW'
-      }, {
-        name: 'LeBron James',
-        age: 33,
-        team: 'LAL'
-      }]
+    $.ajax({
+      method: "GET",
+      url: "https://api.github.com/repos/octokit/octokit.rb"
+    }).done((html) => {
+      console.log("BLAH");
+      this.setState({showDetails: true})
+      this.setState({resultData: 
+        [{
+          name: 'Stephen Curry',
+          age: 30,
+          team: 'GSW'
+        }, {
+          name: 'LeBron James',
+          age: 33,
+          team: 'LAL'
+        }]
+      });
     });
   }
 }
