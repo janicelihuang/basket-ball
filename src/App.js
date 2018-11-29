@@ -11,7 +11,6 @@ class App extends Component {
       showResults: false,
       queryResult: null,
       nameQuery: '',
-      dateQuery: '',
       teamQuery: '',
       oppQuery: '',
       resultData: null,
@@ -71,16 +70,13 @@ class App extends Component {
           <h1 style={{color:'orange'}}>Basket Ball</h1>
           <h3>Look up a player's performance during a specific game</h3>
           <div>
-            Name: <input type="text" placeholder={"Player Name"} value={this.state.nameQuery} onChange={(updatedText)=>this.setState({nameQuery: updatedText.text})}/>
+            Name: <input type="text" placeholder={"Player Name"} value={this.state.nameQuery} onChange={(updatedText)=>this.setState({nameQuery: updatedText.target.value})}/>
           </div>
           <div>
-            Date: <input type="text" placeholder={"dd/mm/yyyy"} value={this.state.dateQuery} onChange={(updatedText)=>this.setState({dateQuery: updatedText.text})}/>
+            Team: <input type="text" placeholder={"e.g. BOS"} value={this.state.teamQuery} onChange={(updatedText)=>this.setState({teamQuery: updatedText.target.value})}/>
           </div>
           <div>
-            Team: <input type="text" placeholder={"e.g. GSW"} value={this.state.teamQuery} onChange={(updatedText)=>this.setState({teamQuery: updatedText.text})}/>
-          </div>
-          <div>
-            Opposition: <input type="text" placeholder={"e.g. CAV"} value={this.state.oppQuery} onChange={(updatedText)=>this.setState({oppQuery: updatedText.text})}/>
+            Opposition: <input type="text" placeholder={"e.g. PHI"} value={this.state.oppQuery} onChange={(updatedText)=>this.setState({oppQuery: updatedText.target.value})}/>
           </div>
           <button onClick={() => {
             this.setState({showResults: true});
@@ -119,31 +115,19 @@ class App extends Component {
     this.setState({detailsData: dataString});
   }
 
+  setResults = (html) => {
+    this.setState({showDetails: true, resultData: html});
+  }
+
   getResults() {
     $.ajax({
       method: "GET",
-      url: "https://api.github.com/repos/octokit/octokit.rb"
-    }).done((html) => {
-      this.setState({resultData: 
-        [{
-          name: 'Stephen Curry',
-          date: '10/23/15',
-          team: 'GSW',
-          opposition: 'LAL',
-          winmargin: 'wat',
-          minutesplayed: 'hek',
-          tpm: 3,
-          ftm: 2,
-          assists: 4,
-          steals: 4,
-          blocks: 91, 
-          turnovers: 12,
-          points: 80,
-          gamescore: 12
-        }]
+      url: "/api/search/",
+      data: {name: this.state.nameQuery, team: this.state.teamQuery, opp: this.state.oppQuery}
+    }).done(this.setResults)
+      .catch((error) => {
+        console.log(error);
       });
-      this.setState({showDetails: true})
-    });
   }
 }
 
