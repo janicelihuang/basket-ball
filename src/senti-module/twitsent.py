@@ -53,21 +53,22 @@ def tweets_getter(player_name, date):
     
     return avg
 
-authorizer()
-new_rows = []
-with open('../basic_gbyg.csv', 'rt') as f:
-    reader = csv.reader(f) # pass the file to our csv reader
-    i = 0
-    for row in reader:     # iterate over the rows in the file
-        if (i == 0):
-            row.append('twt')
-        else:
-            sent = tweets_getter(row[0], row[3])
-            row.append(sent)
-        new_row = row
-        i += 1
-        new_rows.append(new_row) # add the modified rows
+def process_csv():
+    new_rows = []
+    with open('../basic-last7.csv', 'rt') as f:
+        reader = csv.reader(f) # pass the file to our csv reader
+        i = 0
+        for row in reader:     # iterate over the rows in the file
+            if (i == 0):
+                row.append('twt')
+            elif(i >= 13):
+                sent = tweets_getter(row[0], row[3])
+                print (row[0])
+                print (row[3])
+                print (sent)
+                row.append(sent)
+            new_row = row
+            i += 1
+            new_rows.append(new_row) # add the modified rows
 
-with open('../basic_gbyg_sentiment.csv', 'wt') as f:
-    writer = csv.writer(f)
-    writer.writerows(new_rows)
+process_csv()

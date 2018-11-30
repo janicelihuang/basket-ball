@@ -38,6 +38,7 @@ app.post('/api/basicsetup', function (req, res) {
 });
 
 app.post('/api/advancedsetup', function(req, res) {
+  pool.query('DELETE FROM "advancedstats"');
   var result = []
   fs.createReadStream('adv_gbyg.csv')
     .pipe(csv())
