@@ -3,6 +3,8 @@ import './App.css';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css'
 import $ from "jquery";
+import Modal from 'react-modal';
+const TOP_TEAMS = require('./teams.js');
 
 class App extends Component {
   constructor(props){
@@ -15,8 +17,19 @@ class App extends Component {
       oppQuery: '',
       resultData: null,
       showDetails: false,
-      detailsData: null
+      detailsData: null,
+      playerRankings: null,
     };
+  }
+
+  componentDidMount() {
+    $.ajax({
+      method: "GET",
+      url: "/api/rankplayers/"
+    }).done(this.setRanking)
+      .catch((error) => {
+        console.log(error);
+      });   
   }
 
   render() {
@@ -36,14 +49,8 @@ class App extends Component {
             Header: 'Win Margin',
             accessor: 'winmargin'
           }, {
-            Header: 'Minutes Played',
-            accessor: 'minutesplayed'
-          }, {
             Header: "Three Pointers",
             accessor: 'tpm'
-          }, {
-            Header: "Free Throws",
-            accessor: 'ftm'
           }, {
             Header: "Assists",
             accessor: 'assists'
@@ -62,6 +69,9 @@ class App extends Component {
           }, {
             Header: 'Game Score',
             accessor: 'gamescore'
+          }, {
+            Header: 'Twitter Sentiment',
+            accessor: 'twt'
           }
     ];
 
@@ -83,11 +93,6 @@ class App extends Component {
             this.getResults();
           }}>Search</button>
           <button onClick={() => this.setState({showResults: false, query: '', showSentimentGraph: false})}>Reset</button>
-        {this.state.showDetails && this.state.detailsData &&  
-          <div>
-            {this.state.detailsData.name}
-          </div>
-        }
         {this.state.showResults && this.state.resultData &&  
             <ReactTable
                 data={this.state.resultData}
@@ -106,17 +111,44 @@ class App extends Component {
                 }}
             />
         }
+        <Modal
+          isOpen={this.state.showDetails}>
+          {this.state.detailsData && 
+            <div>
+              <h2 ref={subtitle => this.subtitle = subtitle}>{this.state.detailsData}</h2>
+              <button onClick={() => this.setState({showDetails: false})}>close</button>
+              <h3>Recommended Team: {TOP_TEAMS[this.state.playerRankings[this.state.detailsData]]}</h3>
+            </div>
+          }
+        </Modal>
       </div>
     );
   }
   
   getDetails(dataString) {
     // we will query twitter db for the player name, then set data to state, then display chart (points vs sentiment)
-    this.setState({detailsData: dataString});
+    this.setState({showDetails: true, detailsData: dataString.name});
   }
 
   setResults = (html) => {
-    this.setState({showDetails: true, resultData: html});
+    this.setState({resultData: html});
+  }
+
+  setRanking = (html) => {
+    var scoremap = html;
+    var scores = [];
+    for (var key in scoremap){
+      scores.push(parseFloat(scoremap[key]));
+    }
+    var maxscore = Math.max.apply(null,scores);
+    var minscore = Math.min.apply(null, scores);
+    for (var key in scoremap){
+      let score = ((scoremap[key] - minscore)/(maxscore-minscore))*TOP_TEAMS.length - 1
+      if (score < 0)
+        score = 0
+      scoremap[key] = score;
+    }
+    this.setState({playerRankings: scoremap});
   }
 
   getResults() {
